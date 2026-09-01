@@ -26,7 +26,7 @@ install({
         red: '#c50707',
         green: '#2a8d34',
         darkBlue: '#0e0e0f',
-        darkBlue_50: '#0e0e0ff5',
+        darkBlue50: '#0e0e0ff5',
       }
     }
   }

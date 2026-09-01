@@ -2,7 +2,7 @@
 function App() {
   return (
     <>
-      <div className="flex items-center absolute px-4 py-3 top-0 w-full shadow bg-darkBlue-50 text-center fixed z-50">
+      <div className="flex items-center absolute px-4 py-3 top-0 w-full shadow bg-darkBlue50 text-center fixed z-50">
 
         <nav className="text-primary">
 
