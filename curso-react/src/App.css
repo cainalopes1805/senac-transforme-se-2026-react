@@ -17,6 +17,23 @@
   }
 }
 
+.menu {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+}
+
+.esquerda {
+  text-align: left;
+}
+
+.centro {
+  text-align: center;
+}
+
+.direita {
+  text-align: right;
+}
+
 .hero {
   position: relative;
 
