@@ -3,11 +3,34 @@ import { Link } from "react-router"
 
 function Auth() {
     const [modal, setModal] = useState(false)
+    const [users, setUsers] = useState(() => {
+        const usersStorage = localStorage.getItem('users')
+
+        return usersStorage ?
+        JSON.parse(usersStorage) : []
+    })
+    const [user, setUser] = useState({})
+
+    function handleRegister() {        
+        const emailExiste = users.some(
+            (usuario) => usuario.email === user.email
+        )
+        if (emailExiste) {
+            alert("Este email já está cadastrado")
+            return
+        }
+        const newUsers = [...users, user]
+        setUsers(newUsers)
+        setUser({})
+        localStorage.setItem('users', JSON.stringify(newUsers))
+        setModal(false)
+    }
+
     return (
         <>
             <Link
                 to="/login"
-                className="rounded-full bg-primary hover:bg-terciary hover:text-white m-4 px-4 py-3 text-[px] fixed top-0 left-0 shadow-md text-black">
+                className="rounded-full bg-primary hover:bg-terciary hover:text-white m-[40px] px-4 py-3 text-[px] fixed top-0 left-0 shadow-md text-black">
 
                 Voltar
 
@@ -23,7 +46,7 @@ function Auth() {
                     id="idModalRegister"
                     className="fixed flex top-0 right-0 bottom-0 left-0 items-center justify-center bg-green/10 z-50 ">
 
-                    <div className="relative max-w-[600px] w-full p-5 bg-primary rounded-lg shadow-md flex flex-col">
+                    <div className="relative max-w-[600px] w-full p-5 bg-primary rounded-xl shadow-md flex flex-col">
 
                         <h3
                             onClick={() => setModal(false)}
@@ -49,66 +72,63 @@ function Auth() {
 
                                 </p>
 
-                                <div className="py-4 bg-terciary rounded-lg text-white px-3">
-                                    <div className="py-2 flex items-center mx-[40px] mt-[50px]">
-                                        <h2 className="text-left">Nome:</h2>
+                                <div className="py-4 bg-terciary rounded-xl text-white px-3">
+                                    <div className="py-2 items-center mx-[40px] mt-[50px]">
+                                        <h3 className="text-left mb-[3px]">Nome:</h3>
                                         <input
-                                            id="idRegName"
+                                            onChange={(e) => setUser({...user, nome: e.target.value})}
                                             type="text"
                                             placeholder="Digite seu nome completo"
-                                            className="rounded-full py-2 px-6 hover:bg-white bg-darkBlue text-primary border-0 ml-auto"
+                                            className="rounded-xl py-2 px-3 w-full hover:bg-white bg-darkBlue text-primary border-0"
                                             required />
                                     </div>
-                                    <div className="py-2 flex items-center mx-[40px]">
-                                        <h2 className="text-left">Email:</h2>
+                                    <div className="py-2 items-center mx-[40px]">
+                                        <h3 className="text-left mb-[3px]">Email:</h3>
                                         <input
-                                            id="idRegEmail"
+                                            onChange={(e) => setUser({...user, email: e.target.value})}
                                             type="email"
                                             placeholder="Digite o seu melhor email"
-                                            className="rounded-full py-2 px-6 hover:bg-white bg-darkBlue text-primary border-0 ml-auto"
+                                            className="rounded-xl py-2 px-3 w-full hover:bg-white bg-darkBlue text-primary border-0"
                                             required />
                                     </div>
-                                    <div className="py-2 flex items-center mx-[40px]">
-                                        <h2 className="text-left">Senha:</h2>
+                                    <div className="py-2 items-center mx-[40px]">
+                                        <h3 className="text-left mb-[3px]">Senha:</h3>
                                         <input
-                                            id="idRegPassword"
+                                            onChange={(e) => setUser({...user, senha: e.target.value})}
                                             type="password"
                                             placeholder="Letra maiúscula e números"
-                                            className="rounded-full py-2 px-6 hover:bg-white bg-darkBlue text-primary border-0 ml-auto"
+                                            className="rounded-xl py-2 px-3 w-full hover:bg-white bg-darkBlue text-primary border-0"
                                             required />
                                     </div>
-                                    <div className="py-2 flex items-center mx-[40px]">
-                                        <h2 className="text-left">Data de nascimento:</h2>
+                                    <div className="py-2 items-center mx-[40px]">
+                                        <h3 className="text-left ">Data de nascimento:</h3>
                                         <input
-                                            id="idRegDate"
+                                            onChange={(e) => setUser({...user, nascimento: e.target.value})}
                                             type="date"
                                             max="9999-12-31"
-                                            className="rounded-full py-2 px-6 hover:bg-white bg-darkBlue text-primary border-0 ml-auto"
+                                            className="rounded-xl py-2 px-3 w-full hover:bg-white bg-darkBlue text-primary border-0"
                                             required />
-                                    </div>
+                                    </div>                             
                                     <div>
 
 
                                         <a
+                                            onClick={handleRegister}
                                             id="idFormRegister"
                                             className="flex justify-center my-[50px] text-center bg-primary py-2 text-dark rounded-full shadow-md hover:bg-white hover:text-dark cursor-pointer mx-[40px]">
 
                                             Cadastrar
 
                                         </a>
+                                        
                                     </div>
-                                </div>
-
-                            </form>
-
-
+                                </div>                   
+                            </form>    
                         </div>
-
                     </div>
-
                 </div>
             )}
-            <table className="mx-auto mt-6 bg-primary p-2 rounded-lg shadow-md">
+            <table className="mx-auto mt-6 bg-primary p-2 rounded-xl shadow-md">
                 <thead className="bg-primary text-dark">
                     <tr>
                         <td className="px-4 py-2 rounded text-center">Nome</td>
@@ -117,12 +137,11 @@ function Auth() {
                     </tr>
                 </thead>
                 <tbody id="idListUsers">
-
                 </tbody>
             </table>
             <a
                 onClick={() => setModal(true)}
-                className="rounded-full bg-primary hover:bg-terciary hover:text-white m-4 px-5 py-4 text-[px] fixed bottom-0 right-0 shadow-md cursor-pointer text-black">
+                className="rounded-full bg-primary text-[40px] hover:bg-terciary hover:text-white px-[35px] pt-[30px] pb-[40px] items-center fixed bottom-10 right-10 shadow-md cursor-pointer text-black">
 
                 +
 
