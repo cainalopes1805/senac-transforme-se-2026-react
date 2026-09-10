@@ -4,10 +4,10 @@ function Home() {
   return (
     <>
       <nav className="grid grid-cols-3 items-center bg-darkBlue50 fixed w-full px-5">
-        <div className="grid grid-cols-3 items-center text-left gap-8 pr-[270px]">
+        <div className="flex items-center text-left gap-8 pr-[270px]">
 
           <a
-            className="text-center p-1 bg-primary rounded-lg hover:bg-white hover:text-dark text-black m-[0px]"
+            className="text-center p-1 rounded-lg hover:bg-white hover:text-dark text-primary m-[0px]"
             id="idMenuAbout"
             href="#idAbout">
 
@@ -16,7 +16,7 @@ function Home() {
           </a>
 
           <a
-            className="text-center p-1 bg-primary rounded-lg hover:bg-white hover:text-dark text-black m-[0px]"
+            className="text-center p-1 rounded-lg hover:bg-white hover:text-dark text-primary m-[0px]"
             id="idMenuPrices"
             href="#idPrices">
 
@@ -25,7 +25,7 @@ function Home() {
           </a>
 
           <a
-            className="text-center p-1 bg-primary rounded-lg hover:bg-white hover:text-dark text-black m-[0px]"
+            className="text-center p-1 rounded-lg hover:bg-white hover:text-dark text-primary m-[0px]"
             id="idMenuFeatures"
             href="#idFeatures">
 
