@@ -24,12 +24,22 @@ function Auth() {
     }
 
     function deleteUser(usuario) {
+
+        if (users.length == 1) {
+            return
+        }
+
         const newUsers = users.filter((u) =>
             u.email != usuario.email
         )
 
         setUsers(newUsers)
         localStorage.setItem('users', JSON.stringify(newUsers))
+
+        if (log.email == usuario.email) {
+            localStorage.removeItem('logado')
+            window.location.href = "/login"
+        }
     }
 
     const [index, setIndex] = useState(-1)
@@ -94,11 +104,11 @@ function Auth() {
                 Voltar
 
             </Link>
-            <div className="flex mx-auto mt-[30px]">
+            {log && (<div className="flex mx-auto mt-[30px]">
                 <p className="text-black bg-primary px-[30px] py-[20px] rounded-full text-[40px] my-[30px]">
                     Seja bem vindo(a), {log.nome}!
                 </p>
-            </div>
+            </div>)}
             {modal && (
                 <div
                     id="idModalRegister"
