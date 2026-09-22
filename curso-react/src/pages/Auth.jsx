@@ -65,7 +65,8 @@ function Auth() {
             password: user.senha
         })
         if(authError) {
-            console.log(authError)
+            console.log(authError.message)
+            setMensagem(authError.message)
             setSpiner(false)
             return;
         }
@@ -195,6 +196,7 @@ function Auth() {
                                                 {spiner ? "..." : "Salvar"}
 
                                             </a>
+                                            {mensagem}
                                         </div>
                                     </form>
                                 )
