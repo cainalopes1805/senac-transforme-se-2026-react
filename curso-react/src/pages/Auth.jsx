@@ -196,7 +196,6 @@ function Auth() {
                                                 {spiner ? "..." : "Salvar"}
 
                                             </a>
-                                            {mensagem}
                                         </div>
                                     </form>
                                 )
