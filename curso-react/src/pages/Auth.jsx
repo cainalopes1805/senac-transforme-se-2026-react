@@ -1,5 +1,6 @@
-import { useState, useEffect } from "react"
-import { Link } from "react-router"
+import { useState, useEffect } from "react";
+import { Link } from "react-router";
+import { supabase } from "../../utils/supabase";
 
 function Auth() {
     useEffect(
@@ -56,40 +57,19 @@ function Auth() {
 
     const [user, setUser] = useState({})
     const [mensagem, setMensagem] = useState("")
-
-    function handleRegister() {
-        if (!user.nome ||
-            !user.email ||
-            !user.senha ||
-            !user.nascimento) {
-            setMensagem("Preencha todos os campos")
-            return
+    const [spiner, setSpiner] = useState(false)
+    async function handleRegister() {
+        setSpiner (true)
+        const { data: authData, error: authError } = await supabase.auth.signUp({
+            email: user.email,
+            password: user.senha
+        })
+        if(authError) {
+            console.log(authError)
+            setSpiner(false)
+            return;
         }
-        const users = JSON.parse(localStorage.getItem('users'))
-        let buscarEmail = users.find(u => {
-            return u.email == user.email
-        });
-
-        if (buscarEmail) {
-            setMensagem("Email já cadastrado")
-            return
-        }
-        let newUsers = []
-        if (index != -1) {
-            newUsers = [...users]
-            newUsers[index] = user
-        } else {
-            newUsers = [...users, user]
-        }
-
-        setUsers(newUsers)
-        localStorage.setItem('users', JSON.stringify(newUsers))
-
-        setFicha(false)
-        setModal(false)
-        setIsEdit(false)
-        setUser({})
-        setIndex(-1)
+        setSpiner(false)
     }
 
     const [usuarioSelecionado, setUsuarioSelecionado] = useState(null)
@@ -212,7 +192,7 @@ function Auth() {
                                                 id="idFormRegister"
                                                 className="flex justify-center my-[20px] text-center bg-primary py-2 text-dark rounded-full shadow-md hover:bg-terciary hover:text-white cursor-pointer mx-[40px]">
 
-                                                Salvar
+                                                {spiner ? "..." : "Salvar"}
 
                                             </a>
                                         </div>
