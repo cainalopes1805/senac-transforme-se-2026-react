@@ -59,18 +59,27 @@ function Auth() {
     const [mensagem, setMensagem] = useState("")
     const [spiner, setSpiner] = useState(false)
     async function handleRegister() {
-        setSpiner (true)
+        setSpiner(true)
         const { data: authData, error: authError } = await supabase.auth.signUp({
             email: user.email,
             password: user.senha
         })
-        if(authError) {
+        if (authError) {
             console.log(authError.message)
             setMensagem(authError.message)
             setSpiner(false)
             return;
         }
         setSpiner(false)
+        if (!authData) {
+            setMensagem("Erro ao cadastrar usuário")
+            setSpiner(false)
+            return;
+        }
+        const {data: loginData, error: loginError} = await supabase.auth.signInWithPassword({
+            email: user.email,
+            password: user.senha
+        })
     }
 
     const [usuarioSelecionado, setUsuarioSelecionado] = useState(null)
