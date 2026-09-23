@@ -12,11 +12,19 @@ function Auth() {
     )
 
     useEffect(() => {
-        const usersTemp = JSON.parse(localStorage.getItem('users'))
-        if (usersTemp) setUsers(usersTemp)
+        loadUsers()
     },
         []
-    )
+    );
+
+    async function loadUsers() {
+        const { data, error } = await supabase.from('profiles').select('*')
+        if (error) {
+            setMensagem(error.message)
+            return
+        }
+        setUsers(data)
+    }
 
     function updateUser(indice) {
         setFicha(true)
@@ -65,26 +73,35 @@ function Auth() {
             password: user.senha
         })
         if (authError) {
-            console.log(authError.message)
             setMensagem(authError.message)
             setSpiner(false)
             return;
         }
-        setSpiner(false)
         if (!authData) {
             setMensagem("Erro ao cadastrar usuário")
             setSpiner(false)
             return;
         }
-        const {data: loginData, error: loginError} = await supabase.auth.signInWithPassword({
+        const { data: loginData, error: loginError } = await supabase.auth.signInWithPassword({
             email: user.email,
             password: user.senha
-        })
-        const {error: profileError} = await supabase.from('profiles').insert({
-            full_name: user.nome,
-            birth: user.nascimento,
-            user_id: loginData.user.id
-        })
+        });
+        const { error: profileError } = await supabase.from('profiles').insert({
+            user_id: loginData.user.id,
+            full_name: user.full_name,
+            birth: user.birth,
+        });
+        if (loginError) {
+            setMensagem("Erro ao logar usuário")
+            setSpiner(false)
+            return;
+        }
+        if (profileError) {
+            setMensagem("Erro ao criar perfil do usuário")
+            setSpiner(false)
+            return;
+        }
+        setSpiner(false)
     }
 
     const [usuarioSelecionado, setUsuarioSelecionado] = useState(null)
@@ -101,7 +118,7 @@ function Auth() {
             </Link>
             {log && (<div className="flex mx-auto mt-[30px]">
                 <p className="text-black bg-primary px-[30px] py-[20px] rounded-full text-[40px] my-[30px]">
-                    Seja bem vindo(a), {log.nome}!
+                    Seja bem vindo(a), {log.full_name}!
                 </p>
             </div>)}
             {modal && (
@@ -146,8 +163,8 @@ function Auth() {
                                             <div className="py-2 items-center mx-[40px] mt-[20px]">
                                                 <h3 className="text-left mb-[3px]">Nome:</h3>
                                                 <input
-                                                    value={user.nome}
-                                                    onChange={(e) => setUser({ ...user, nome: e.target.value })}
+                                                    value={user.full_name}
+                                                    onChange={(e) => setUser({ ...user, full_name: e.target.value })}
                                                     type="text"
                                                     placeholder="Digite seu nome completo"
                                                     className="rounded-lg py-2 px-3 w-full hover:bg-white/10 bg-darkBlue text-white border-orange-600 border-[3px]"
@@ -179,8 +196,8 @@ function Auth() {
                                             <div className="py-2 items-center mx-[40px]">
                                                 <h3 className="text-left ">Data de nascimento:</h3>
                                                 <input
-                                                    value={user.nascimento}
-                                                    onChange={(e) => setUser({ ...user, nascimento: e.target.value })}
+                                                    value={user.birth}
+                                                    onChange={(e) => setUser({ ...user, birth: e.target.value })}
                                                     type="date"
                                                     max="9999-12-31"
                                                     className="rounded-lg py-2 px-3 w-full hover:bg-white/10 bg-darkBlue text-white border-orange-600 border-[3px]"
@@ -255,7 +272,7 @@ function Auth() {
                             </div>
                             <div className="p-[20px] rounded-lg border-[4px] border-orange-600 hover:bg-white/10">
                                 <p className="bg-orange-600 rounded-lg mb-[10px] text-black">Nascimento</p>
-                                <p>{usuarioSelecionado.nascimento}</p>
+                                <p>{usuarioSelecionado.birth}</p>
                             </div>
                         </div>
                         <div className="flex">
