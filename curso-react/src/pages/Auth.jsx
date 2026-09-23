@@ -80,6 +80,11 @@ function Auth() {
             email: user.email,
             password: user.senha
         })
+        const {error: profileError} = await supabase.from('profiles').insert({
+            full_name: user.nome,
+            birth: user.nascimento,
+            user_id: loginData.user.id
+        })
     }
 
     const [usuarioSelecionado, setUsuarioSelecionado] = useState(null)
