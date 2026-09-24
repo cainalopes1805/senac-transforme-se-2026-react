@@ -67,6 +67,7 @@ function Auth() {
     const [mensagem, setMensagem] = useState("")
     const [spiner, setSpiner] = useState(false)
     async function handleRegister() {
+        setMensagem("")
         setSpiner(true)
         const { data: authData, error: authError } = await supabase.auth.signUp({
             email: user.email,
@@ -102,6 +103,8 @@ function Auth() {
             return;
         }
         setSpiner(false)
+        setMensagem("Usuário cadastrado com sucesso!")
+        loadUsers()
     }
 
     const [usuarioSelecionado, setUsuarioSelecionado] = useState(null)
@@ -260,7 +263,7 @@ function Auth() {
                         <div className="grid grid-cols-2 mt-[40px] gap-[40px] text-white">
                             <div className="p-[20px] rounded-lg border-[4px] border-orange-600 mb-[20px] hover:bg-white/10">
                                 <p className="bg-orange-600 rounded-lg mb-[10px] text-black">Nome</p>
-                                <p>{usuarioSelecionado.nome}</p>
+                                <p>{usuarioSelecionado.full_name}</p>
                             </div>
                             <div className="p-[20px] rounded-lg border-[4px] border-orange-600 mb-[20px] hover:bg-white/10">
                                 <p className="bg-orange-600 rounded-lg mb-[10px] text-black">Email</p>
@@ -309,8 +312,8 @@ function Auth() {
                                     setUsuarioSelecionado(usuario)
                                 }}
                                 className="grid grid-cols-3 text-white items-center rounded-lg hover:bg-white/10 cursor-pointer">
-                                <p className="text-left border-r p-[20px] border-secondary">{usuario.nome}</p>
-                                <p className="text-left border-r p-[20px] border-secondary">{usuario.email}</p>
+                                <p className="text-left border-r p-[20px] border-secondary">{usuario.full_name}</p>
+                                <p className="text-left border-r p-[20px] border-secondary">{usuario.birth}</p>
                                 <div className="flex mx-auto">
                                     <a
                                         onClick={(e) => {
