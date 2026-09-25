@@ -26,29 +26,41 @@ function Auth() {
         setUsers(data)
     }
 
-    function updateUser(indice) {
+    function updateUser(user) {
         setFicha(true)
-        setUser(users[indice])
-        setIndex(indice)
+        setUser(user)
+        setIndex(user.id)
     }
 
-    function deleteUser(usuario) {
-
-        if (users.length == 1) {
+    async function editUser() {
+        setSpiner(true)
+        const { data, error } = await supabase
+            .from('profiles')
+            .update(user)
+            .eq('id', index)
+            .select()
+        if (error) {
+            setMensagem(error.message)
+            setSpiner(false)
             return
         }
+        setMensagem("Usuário editado com sucesso!")
+        setSpiner(false)
+        loadUsers()
+    }
 
-        const newUsers = users.filter((u) =>
-            u.email != usuario.email
-        )
 
-        setUsers(newUsers)
-        localStorage.setItem('users', JSON.stringify(newUsers))
-
-        if (log.email == usuario.email) {
-            localStorage.removeItem('logado')
-            window.location.href = "/login"
+    async function deleteUser(usuario) {
+        const { error } = await supabase
+            .from('profiles')
+            .delete()
+            .eq('id', usuario.id)
+        if (error) {
+            setMensagem(error.message)
+            return
         }
+        setMensagem("Usuário deletado com sucesso!")
+        loadUsers()
     }
 
     const [index, setIndex] = useState(-1)
@@ -88,9 +100,8 @@ function Auth() {
             password: user.senha
         });
         const { error: profileError } = await supabase.from('profiles').insert({
-            user_id: loginData.user.id,
-            full_name: user.full_name,
-            birth: user.birth,
+            ...user,
+            user_id: loginData.user.id
         });
         if (loginError) {
             setMensagem("Erro ao logar usuário")
@@ -223,7 +234,14 @@ function Auth() {
                                                 </a>
                                             )}
                                             <a
-                                                onClick={handleRegister}
+                                                onClick={
+                                                    () => {
+                                                        if (index != -1)
+                                                            handleRegister()
+                                                        else
+                                                            editUser()
+                                                    }
+                                                }
                                                 id="idFormRegister"
                                                 className="flex justify-center my-[20px] text-center bg-primary py-2 text-dark rounded-full shadow-md hover:bg-terciary hover:text-white cursor-pointer mx-[40px]">
 
@@ -306,9 +324,9 @@ function Auth() {
                     {users.map((usuario, i) => {
                         return (
                             <div
-                                key={usuario.email}
+                                key={usuario.id}
                                 onClick={() => {
-                                    updateUser(i)
+                                    updateUser(usuario)
                                     setUsuarioSelecionado(usuario)
                                 }}
                                 className="grid grid-cols-3 text-white items-center rounded-lg hover:bg-white/10 cursor-pointer">
