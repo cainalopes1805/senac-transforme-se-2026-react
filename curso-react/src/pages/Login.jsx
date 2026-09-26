@@ -1,30 +1,35 @@
 import { use, useState } from "react"
-;import { Link, useNavigate } from 'react-router'
+    ; import { Link, useNavigate } from 'react-router'
+import { supabase } from "../../utils/supabase";
 
 function Login() {
     const [email, setEmail] = useState("")
     const [senha, setSenha] = useState("")
     const [mensagem, setMensagem] = useState("")
     const nav = useNavigate()
-    function handleLogin() {
-        const users= JSON.parse(localStorage.getItem('users'))
-        
-        let user = users.find(u => {
-            return u.email == email
+    async function handleLogin() {
+
+        const { data, error } = await supabase.auth.signInWithPassword({
+            email: email,
+            password: senha
         });
 
-        if(!user) {
-            setMensagem("Usuário não encontrado")            
-            return
+        if (error) {
+            setMensagem("Usuário ou senha incorretos");
+            return;
         }
-        if(user.senha == senha) {
-            localStorage.setItem("logado", JSON.stringify(user))
-            nav("/Auth")
+
+        const { data: profile } = await supabase
+            .from('profiles')
+            .select('*')
+            .eq('user_id', data.user.id)
+            .single();
+
+        if (profile) {
+            localStorage.setItem("logado", JSON.stringify(profile));
         }
-        else{            
-            setMensagem("Senha incorreta")
-            return
-        }
+
+        nav("/Auth");
     }
 
     return (
@@ -39,7 +44,7 @@ function Login() {
 
                             Voltar
 
-                        </Link>                    
+                        </Link>
                         <div className="mt-4">
 
                             <form>
@@ -81,9 +86,9 @@ function Login() {
                                         />
                                     </div>
                                     <div className="py-2">
-                                        <a 
+                                        <a
                                             onClick={handleLogin}
-                                            id="idFormLogin"                                
+                                            id="idFormLogin"
                                             className="flex justify-center mt-[30px] text-center bg-primary py-2 text-dark rounded-full shadow-md hover:bg-white hover:text-dark cursor-pointer mx-[40px]">
 
                                             Entrar

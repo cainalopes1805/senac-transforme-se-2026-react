@@ -3,6 +3,17 @@ import { Link } from "react-router";
 import { supabase } from "../../utils/supabase";
 
 function Auth() {
+    const [user, setUser] = useState({})
+    const [mensagem, setMensagem] = useState("")
+    const [spiner, setSpiner] = useState(false)
+    const [index, setIndex] = useState(-1)
+    const [log, setLog] = useState({})
+    const [modal, setModal] = useState(false)
+    const [ficha, setFicha] = useState(false)
+    const [users, setUsers] = useState([])
+    const [usuarioSelecionado, setUsuarioSelecionado] = useState(null)
+    const [isEdit, setIsEdit] = useState(false)
+
     useEffect(
         () => {
             const logado = JSON.parse(localStorage.getItem('logado'))
@@ -19,6 +30,7 @@ function Auth() {
 
     async function loadUsers() {
         const { data, error } = await supabase.from('profiles').select('*')
+        console.log("loadUsers", data, "error", error)
         if (error) {
             setMensagem(error.message)
             return
@@ -33,6 +45,7 @@ function Auth() {
     }
 
     async function editUser() {
+
         setSpiner(true)
         const { data, error } = await supabase
             .from('profiles')
@@ -47,43 +60,32 @@ function Auth() {
         setMensagem("Usuário editado com sucesso!")
         setSpiner(false)
         loadUsers()
+
     }
 
 
-    async function deleteUser(usuario) {
-        const { error } = await supabase
+    async function deleteUser(index) {
+
+        const { data, error } = await supabase
             .from('profiles')
             .delete()
-            .eq('id', usuario.id)
+            .eq('id', index)
         if (error) {
             setMensagem(error.message)
             return
         }
-        setMensagem("Usuário deletado com sucesso!")
         loadUsers()
+
     }
 
-    const [index, setIndex] = useState(-1)
-    const [log, setLog] = useState({})
-    const [modal, setModal] = useState(false)
-    const [ficha, setFicha] = useState(false)
-
-    const [users, setUsers] = useState(() => {
-        const usersStorage = localStorage.getItem('users')
-
-        return usersStorage ?
-            JSON.parse(usersStorage) : []
-    })
-
-    const [user, setUser] = useState({})
-    const [mensagem, setMensagem] = useState("")
-    const [spiner, setSpiner] = useState(false)
     async function handleRegister() {
         setMensagem("")
         setSpiner(true)
+        const { email, password, ...profileData } = user
+        console.log(profileData)
         const { data: authData, error: authError } = await supabase.auth.signUp({
-            email: user.email,
-            password: user.senha
+            email: email,
+            password: password
         })
         if (authError) {
             setMensagem(authError.message)
@@ -96,30 +98,25 @@ function Auth() {
             return;
         }
         const { data: loginData, error: loginError } = await supabase.auth.signInWithPassword({
-            email: user.email,
-            password: user.senha
+            email: email,
+            password: password
         });
         const { error: profileError } = await supabase.from('profiles').insert({
-            ...user,
+            ...profileData,
             user_id: loginData.user.id
         });
-        if (loginError) {
-            setMensagem("Erro ao logar usuário")
-            setSpiner(false)
-            return;
-        }
         if (profileError) {
             setMensagem("Erro ao criar perfil do usuário")
             setSpiner(false)
             return;
         }
+        loadUsers()
         setSpiner(false)
         setMensagem("Usuário cadastrado com sucesso!")
-        loadUsers()
+
     }
 
-    const [usuarioSelecionado, setUsuarioSelecionado] = useState(null)
-    const [isEdit, setIsEdit] = useState(false)
+
 
     return (
         <>
@@ -182,7 +179,7 @@ function Auth() {
                                                     type="text"
                                                     placeholder="Digite seu nome completo"
                                                     className="rounded-lg py-2 px-3 w-full hover:bg-white/10 bg-darkBlue text-white border-orange-600 border-[3px]"
-                                                    required />
+                                                />
                                             </div>
                                             <div className="py-2 items-center mx-[40px]">
                                                 <h3 className="text-left mb-[3px]">Email:</h3>
@@ -195,17 +192,17 @@ function Auth() {
                                                     type="email"
                                                     placeholder="Digite o seu melhor email"
                                                     className="rounded-lg py-2 px-3 w-full hover:bg-white/10 bg-darkBlue text-white border-orange-600 border-[3px]"
-                                                    required />
+                                                />
                                             </div>
                                             <div className="py-2 items-center mx-[40px]">
                                                 <h3 className="text-left mb-[3px]">Senha:</h3>
                                                 <input
-                                                    value={user.senha}
-                                                    onChange={(e) => setUser({ ...user, senha: e.target.value })}
+                                                    value={user.password}
+                                                    onChange={(e) => setUser({ ...user, password: e.target.value })}
                                                     type="password"
                                                     placeholder="Letra maiúscula e números"
                                                     className="rounded-lg py-2 px-3 w-full hover:bg-white/10 bg-darkBlue text-white border-orange-600 border-[3px]"
-                                                    required />
+                                                />
                                             </div>
                                             <div className="py-2 items-center mx-[40px]">
                                                 <h3 className="text-left ">Data de nascimento:</h3>
@@ -215,9 +212,9 @@ function Auth() {
                                                     type="date"
                                                     max="9999-12-31"
                                                     className="rounded-lg py-2 px-3 w-full hover:bg-white/10 bg-darkBlue text-white border-orange-600 border-[3px]"
-                                                    required />
+                                                />
                                             </div>
-                                            {index != -1 && (
+                                            {index == -1 && (
                                                 <a
                                                     onClick={() => {
                                                         setFicha(false)
@@ -236,10 +233,11 @@ function Auth() {
                                             <a
                                                 onClick={
                                                     () => {
-                                                        if (index != -1)
-                                                            handleRegister()
-                                                        else
+                                                        if (index !== -1) {
                                                             editUser()
+                                                        } else {
+                                                            handleRegister()
+                                                        }
                                                     }
                                                 }
                                                 id="idFormRegister"
@@ -336,7 +334,7 @@ function Auth() {
                                     <a
                                         onClick={(e) => {
                                             e.stopPropagation()
-                                            deleteUser(usuario)
+                                            deleteUser(usuario.id)
                                         }}
                                         className="bg-red hover:bg-red-900 px-[13px] py-[6px] rounded-full cursor-pointer">
                                         X
